@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+    <header>
+        <div th:replace="/fragments/dashboard :: navbarTemplate"></div>
+    </header>
+    <main class="pt-5">
+        <div class="container-fluid mt-5">
+           <div class="row mt-4">
+<!--               <th:block th:if="${#lists.isEmpty(contacts)}">-->
+<!--                   <h5>No contacts</h5>-->
+<!--               </th:block>-->
+
+<!--               <th:block th:unless="${#lists.isEmpty(contacts)}">-->
+                   <div class="table-responsive" style="width: 80%">
+                       <h5>List of contacts</h5>
+                       <table id="tableNhanVien" class="table table-dark table-hover">
+                           <thead>
+                           <tr>
+                               <th>MaHoaDon</th>
+                               <th>MaKhachHang</th>
+                               <th>MaNhanVien</th>
+                               <th>NgayLapHoaDon</th>
+                               <th>NgayNhanHang</th>
+                               <th>
+                                   <button type="button" class="btn btn-info btn-rounded waves-effect" onclick="launchModalSave()"> <i class="fa fa-plus"></i></button>
+                               </th>
+                           </tr>
+                           </thead>
+                           <tbody>
+                           <tr th:each="hoadon,iterStat : ${contacts}">
+                               <td id="manvTable" th:text="${hoadon.getMahoadon()}"></td>
+                               <td id="tenNhanVienTable" th:text="${hoadon.getMakhachhang()}"></td>
+                               <td th:text="${hoadon.getManhanvien()}"></td>
+                               <td th:text="${hoadon.getNgaylaphoadon()}"></td>
+                               <td th:text="${hoadon.getNgaynhanhang()}"></td>
+                               <td>
+                                   <button type="button" class="btn btn-primary btnEdit" data-toggle="modal" data-target="#exampleModal" onclick="getHoaDon(mahdEdit)">
+                                       <i class="fa fa-pencil"></i>
+                                   </button>
+                                   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSecond" onclick="deleteHoaDon()">
+                                       <i class="fa fa-trash"></i>
+                                   </button>
+                                   <button type="button" class="btn btn-purple" data-toggle="modal" data-target="#modalSecond" onclick="deleteHoaDon()">
+                                       <i class="fa fa-eye"></i>
+                                   </button>
+                               </td>
+                           </tr>
+                           </tbody>
+                       </table>
+                   </div>
+<!--               </th:block>-->
+                   <div id="toastTB" class="toast mdb-color" role="alert" aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px; margin-left: 3rem;height: max-content;max-width: 175px" data-delay="10000">
+                       <div class="toast-header">
+                           <i class="fa fa-info"></i>
+                           <h5 class="font-weight-bolder pl-2 pt-2" style="color: #00bcd4">Thông báo</h5>
+                           <button type="button" class="ml-4 mb-2 close" data-dismiss="toast" aria-label="Close">
+                               <span aria-hidden="true">×</span>
+                           </button>
+                       </div>
+                       <div class="toast-body">
+                           <p class="text-white font-weight-bolder" id="toastSuccess"></p>
+                       </div>
+                   </div>
+           </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header cyan darken-3 text-white">
+                    <h5 class="modal-title font-weight-bolder" id="exampleModalLabel">Thêm sản phẩm</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body font-weight-bolder">
+                    <form id="formHoaDon" th:object="${hoadon}" onsubmit="formAction()">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="mahd">Mã hóa đơn</label>
+                                    <input type="number" class="form-control" id="mahd" th:field="*{mahoadon}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="makh">Mã khách hàng</label>
+                                    <input type="text" class="form-control" id="makh" th:field="*{makhachhang}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="manv">Mã nhân viên</label>
+                                    <input type="text" class="form-control" id="manv" th:field="*{manhanvien}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="ngaylaphd">Ngày lập hóa đơn</label>
+                                <input type="date" class="form-control" id="ngaylaphd" th:field="*{ngaylaphoadon}">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="ngaynhan">Ngày nhận hàng</label>
+                                <input type="date" class="form-control" id="ngaynhan" th:field="*{ngaynhanhang}">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer unique-color">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="btnModal" type="button" class="btn btn-primary" onclick="formSubmit()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="modalSecond">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header cyan darken-3 text-white">
+                    <h5 class="modal-title font-weight-bolder">Attention</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body font-weight-bolder" id="modalXoa">
+                </div>
+                <div class="modal-footer unique-color">
+                    <button type="button" class="btn btn-primary" onclick="confirmDeleteNo();">
+                        <i class="fa fa-thumbs-down"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="confirmDeleteYes(mahdEdit);">
+                        <i class="fa fa-thumbs-up"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal3" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header cyan darken-3 text-white">
+                    <h5 class="modal-title font-weight-bolder" id="modal3">Thêm sản phẩm</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body font-weight-bolder">
+                    <form id="formHoaDonDetails" th:object="${chitiethoadon}" onsubmit="formAction()">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="mahd">Mã hóa đơn</label>
+                                    <input type="number" class="form-control" id="mahd" th:field="*{mahoadon}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="makh">Mã khách hàng</label>
+                                    <input type="text" class="form-control" id="makh" th:field="*{makhachhang}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="manv">Mã nhân viên</label>
+                                    <input type="text" class="form-control" id="manv" th:field="*{manhanvien}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="ngaylaphd">Ngày lập hóa đơn</label>
+                                <input type="date" class="form-control" id="ngaylaphd" th:field="*{ngaylaphoadon}">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="ngaynhan">Ngày nhận hàng</label>
+                                <input type="date" class="form-control" id="ngaynhan" th:field="*{ngaynhanhang}">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer unique-color">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="btnModal" type="button" class="btn btn-primary" onclick="formSubmit()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+    <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"/>
+    <!-- See configuration in WebMvConfig.java -->
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <!-- Material Design Bootstrap -->
+    <link href="../static/css/mdb.min.css" th:href="@{/css/mdb.min.css}" rel="stylesheet" />
+    <!-- Your custom styles (optional) -->
+    <link href="../static/css/style.min.css" th:href="@{/css/style.min.css}" rel="stylesheet" />
+
+    <link href="webjars/mdbootstrap-bootstrap-material-design/4.8.8/css/mdb.lite.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</body>
+<script>
+    var saveVar = false;
+    var edit = false;
+    function launchModalSave() {
+        saveVar = true;
+        if(document.getElementById("mahd").value!=null){
+            document.getElementById("makh").value = '';
+            document.getElementById("manv").value= '';
+            document.getElementById("ngaylaphd").value= '';
+            document.getElementById("ngaynhan").value= '';
+            $('#exampleModal').modal();
+        }else{
+            $('#exampleModal').modal();
+        }
+    }
+
+    function getHoaDon(maHoaDonEdit) {
+        edit = true;
+        var mahdGet = maHoaDonEdit;
+        axios.get('/hoadon/?mahoadon='+ mahdGet).then(function (response) {
+            document.getElementById("mahd").value = response.data.mahoadon;
+            document.getElementById("makh").value= response.data.makhachhang;
+            document.getElementById("manv").value= response.data.manhanvien;
+            document.getElementById("ngaylaphd").value= response.data.ngaylaphoadon;
+            document.getElementById("ngaynhan").value= response.data.ngaynhanhang;
+        })
+        $('#exampleModal').modal();
+    }
+    function save() {
+        var hoadon = new Object()
+        hoadon.mahoadon = $('#mahd').val();
+        hoadon.makhachhang = $('#makh').val();
+        hoadon.manhanvien = $('#manv').val();
+        hoadon.ngaylaphoadon = $('#ngaylaphd').val();
+        hoadon.ngaynhanhang = $('#ngaynhan').val();
+
+        axios.post('/hoadon',hoadon).then(function (response) {
+            mytbl.destroy();
+            mytbl = $("#tableNhanVien").DataTable({
+                "ajax" : {
+                    "url": "/hoadon/all",
+                    "type": "GET",
+                    "cache": true,
+                    "dataSrc": "",
+                },
+                "columns" : [
+                    { "data" : "mahoadon" },
+                    { "data" : "makhachhang" },
+                    { "data" : "manhanvien" },
+                    { "data" : "ngaylaphoadon" },
+                    { "data" : "ngaynhanhang" },
+                    { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                            '                                    <i class="fa fa-pencil"></i>\n' +
+                            '                                </button>\n' +
+                            '                                <button type="button" class="btn btn-danger"">\n' +
+                            '                                    <i class="fa fa-trash"></i>\n' +
+                            '                                </button>'+
+                            '                                <button type="button" class="btn btn-purple"">\n' +
+                            '                                    <i class="fa fa-eye"></i>\n' +
+                            '                                </button>'}
+                ]
+            });
+            $('#exampleModal').modal('hide');
+            document.getElementById("toastSuccess").innerHTML = 'add new ' + response.data.mahoadon + ' success';
+            $("#toastTB").toast('show');
+        })
+    }
+
+    function saveEdit(mahdTmp){
+        var mahdGet = mahdTmp;
+        var hoadon = new Object();
+        hoadon.mahoadon = $('#mahd').val();
+        hoadon.makhachhang = $('#makh').val();
+        hoadon.manhanvien = $('#manv').val();
+        hoadon.ngaylaphoadon = $('#ngaylaphd').val();
+        hoadon.ngaynhanhang = $('#ngaynhan').val();
+        axios.put('/hoadon/?mahoadon='+ mahdGet,hoadon).then(function (response) {
+            mytbl.destroy();
+            mytbl = $("#tableNhanVien").DataTable({
+                "ajax" : {
+                    "url": "/hoadon/all",
+                    "type": "GET",
+                    "cache": true,
+                    "dataSrc": "",
+                },
+                "columns" : [
+                    { "data" : "mahoadon" },
+                    { "data" : "makhachhang" },
+                    { "data" : "manhanvien" },
+                    { "data" : "ngaylaphoadon" },
+                    { "data" : "ngaynhanhang" },
+                    { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                            '                                    <i class="fa fa-pencil"></i>\n' +
+                            '                                </button>\n' +
+                            '                                <button type="button" class="btn btn-danger"">\n' +
+                            '                                    <i class="fa fa-trash"></i>\n' +
+                            '                                </button>' +
+                        '                                <button type="button" class="btn btn-purple"">\n' +
+                                '                                    <i class="fa fa-eye"></i>\n' +
+                            '                                </button>'}
+                ]
+            });
+            $('#exampleModal').modal('hide');
+            document.getElementById("toastSuccess").innerHTML = 'edit information of ' + response.data.mahoadon + ' success';
+            $("#toastTB").toast('show');
+        })
+    }
+
+    $(document).ready(function() {
+        mytbl = $("#tableNhanVien").DataTable({
+            "ajax" : {
+                "url": "/hoadon/all",
+                "type": "GET",
+                "cache": true,
+                "dataSrc": "",
+            },
+            "columns" : [
+                { "data" : "mahoadon" },
+                { "data" : "makhachhang" },
+                { "data" : "manhanvien" },
+                { "data" : "ngaylaphoadon" },
+                { "data" : "ngaynhanhang" },
+                { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                        '                                    <i class="fa fa-pencil"></i>\n' +
+                        '                                </button>\n' +
+                        '                                <button type="button" class="btn btn-danger"">\n' +
+                        '                                    <i class="fa fa-trash"></i>\n' +
+                        '                                </button>'+
+                        '                                <button type="button" class="btn btn-purple"">\n' +
+                        '                                    <i class="fa fa-eye"></i>\n' +
+                        '                                </button>'}
+            ]
+        });
+
+        $('#tableNhanVien').on('click', ':button.btn-cyan' , function () {
+            data = mytbl.row( $(this).parent().parent() ).data();
+            mahdEdit = data.mahoadon;
+            getHoaDon(mahdEdit);
+        } );
+
+        $('#tableNhanVien').on('click', ':button.btn-danger' , function () {
+            data = mytbl.row( $(this).parent().parent() ).data();
+            mahdEdit = data.mahoadon;
+            deleteHoaDon(data.mahoadon);
+        } );
+
+        $('#tableNhanVien').on('click', ':button.btn-purpil' , function () {
+            data = mytbl.row( $(this).parent().parent() ).data();
+            mahdEdit = data.mahoadon;
+            getHoaDonDetails(data.mahoadon);
+        } );
+    });
+
+
+
+    function formSubmit() {
+        if(saveVar){
+            save();
+            saveVar = false;
+        }else{
+            saveEdit(mahdEdit);
+            edit = false;
+        }
+    }
+
+    function deleteHoaDon(mahdTemp) {
+        var mahoadontmp = mahdTemp;
+        document.getElementById("modalXoa").innerHTML = 'Bạn có muốn xóa : '+ mahoadontmp;
+        $('#modalSecond').modal();
+    }
+
+    function confirmDeleteNo() {
+        $('#modalSecond').modal('hide');
+    }
+
+    function confirmDeleteYes(mahdTmp) {
+        var maHoaDonDelete = mahdTmp;
+        axios.delete('/hoadon/'+'?mahoadon='+maHoaDonDelete).then(function (response) {
+            mytbl.destroy();
+            mytbl = $("#tableNhanVien").DataTable({
+                "ajax" : {
+                    "url": "/hoadon/all",
+                    "type": "GET",
+                    "cache": true,
+                    "dataSrc": "",
+                },
+                "columns" : [
+                    { "data" : "mahoadon" },
+                    { "data" : "makhachhang" },
+                    { "data" : "manhanvien" },
+                    { "data" : "ngaylaphoadon" },
+                    { "data" : "ngaynhanhang" },
+                    { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                            '                                    <i class="fa fa-pencil"></i>\n' +
+                            '                                </button>\n' +
+                            '                                <button type="button" class="btn btn-danger"">\n' +
+                            '                                    <i class="fa fa-trash"></i>\n' +
+                            '                                </button>'+
+                            '                                <button type="button" class="btn btn-purple"">\n' +
+                            '                                    <i class="fa fa-eye"></i>\n' +
+                            '                                </button>'}
+                ]
+            });
+            $('#modalSecond').modal('hide');
+            document.getElementById("toastSuccess").innerHTML = 'delete ' + response.mahoadon + ' success';
+            $("#toastTB").toast('show');
+        })
+    }
+
+    function getHoaDonDetails(maHoaDonTmp) {
+        axios.get('/hoadon/details/'+'?mahoadon='+maHoaDonTmp).then(function (response) {
+
+        })
+    }
+</script>
+</html>

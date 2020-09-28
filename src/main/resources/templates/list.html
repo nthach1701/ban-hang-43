@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Nhân viên Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+<header>
+    <div th:replace="/fragments/dashboard :: navbarTemplate"></div>
+</header>
+<main class="pt-5">
+    <div class="container-fluid mt-5">
+        <div class="row mt-4">
+            <th:block th:if="${#lists.isEmpty(contacts)}">
+                <h5>No Nhân viên</h5>
+            </th:block>
+
+            <th:block th:unless="${#lists.isEmpty(contacts)}">
+                <div class="table-responsive" style="width: 80%">
+                    <h5>List of contacts</h5>
+                    <table id="tableNhanVien" class="table table-dark table-hover">
+                        <thead>
+                        <tr>
+                            <th>MaNV</th>
+                            <th>Name</th>
+                            <th>FirstName</th>
+                            <th>DateOfBirth</th>
+                            <th>Sex</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Action</th>
+                            <th>
+                                <button type="button" class="btn btn-info btn-rounded waves-effect" onclick="launchModalSave()"> <i class="fa fa-plus"></i></button>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="contact,iterStat : ${contacts}">
+                            <td id="manvTable" th:text="${contact.getMaNV()}"></td>
+                            <td id="tenNhanVienTable" th:text="${contact.getHoNV()}"></td>
+                            <td th:text="${contact.getTenNV()}"></td>
+                            <td th:text="${contact.getNgaySinh()}"></td>
+                            <td th:text="${contact.getGioiTinh()}"></td>
+                            <td th:text="${contact.getDiaChi()}"></td>
+                            <td th:text="${contact.getDienThoai()}"></td>
+                            <td>
+                                <button type="button" class="btn btn-primary btnEdit" data-toggle="modal" data-target="#exampleModal" onclick="getNhanVien(manvEdit)">
+                                    <i class="fa fa-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSecond" onclick="deleteNhanVien()">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </th:block>
+            <div id="toastTB" class="toast mdb-color" role="alert" aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px; margin-left: 3rem;height: max-content;max-width: 175px" data-delay="10000">
+                <div class="toast-header">
+                    <i class="fa fa-info"></i>
+                    <h5 class="font-weight-bolder pl-2 pt-2" style="color: #00bcd4">Thông báo</h5>
+                    <button type="button" class="ml-4 mb-2 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    <p class="text-white font-weight-bolder" id="toastSuccess"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main><!-- /.container -->
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header cyan darken-3 text-white">
+                    <h5 class="modal-title font-weight-bolder" id="exampleModalLabel">Thêm nhân viên</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body font-weight-bolder">
+                    <form id="formThemNhanVien" th:object="${nhanvien}" onsubmit="formAction()">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="manv">Mã nhân viên</label>
+                                    <input type="text" class="form-control" id="manv" th:field="*{maNV}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="honv">Họ</label>
+                                    <input type="text" class="form-control" id="honv" th:field="*{hoNV}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="tennv">Tên</label>
+                                    <input type="text" class="form-control" id="tennv" th:field="*{tenNV}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="gioitinh">Giới tính</label>
+                                <select class="form-control" id="gioitinh" th:field="*{gioiTinh}">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="ngaysinh">Ngày sinh</label>
+                                <input type="date" class="form-control" id="ngaysinh" th:field="*{ngaySinh}">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="diachi">Địa chỉ</label>
+                                <input type="text" class="form-control" id="diachi" th:field="*{diaChi}">
+                            </div>
+                        </div>
+                        <div class="row form-group col-md-8">
+                            <label for="dienthoai">Điện thoại</label>
+                            <input type="text" class="form-control" id="dienthoai" th:field="*{dienThoai}">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer unique-color">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="btnModal" type="button" class="btn btn-primary" onclick="formSubmit()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="modalSecond">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header cyan darken-3 text-white">
+                    <h5 class="modal-title font-weight-bolder">Attention</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body font-weight-bolder" id="modalXoa">
+                </div>
+                <div class="modal-footer unique-color">
+                    <button type="button" class="btn btn-primary" onclick="confirmDeleteNo();">
+                        <i class="fa fa-thumbs-down"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="confirmDeleteYes(manvEdit);">
+                        <i class="fa fa-thumbs-up"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"/>
+<!-- See configuration in WebMvConfig.java -->
+<link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+<!-- Material Design Bootstrap -->
+<link href="../static/css/mdb.min.css" th:href="@{/css/mdb.min.css}" rel="stylesheet" />
+<!-- Your custom styles (optional) -->
+<link href="../static/css/style.min.css" th:href="@{/css/style.min.css}" rel="stylesheet" />
+
+<link href="webjars/mdbootstrap-bootstrap-material-design/4.8.8/css/mdb.lite.css" rel="stylesheet"/>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</body>
+
+<script>
+    var saveVar = false;
+    var edit = false;
+    function launchModalSave() {
+        saveVar = true;
+        if(document.getElementById("manv").value!=null){
+            document.getElementById("manv").value = '';
+            document.getElementById("honv").value= '';
+            document.getElementById("tennv").value= '';
+            document.getElementById("gioitinh").value= '';
+            document.getElementById("ngaysinh").value= '';
+            document.getElementById("diachi").value= '';
+            document.getElementById("dienthoai").value= '';
+            $('#exampleModal').modal();
+        }else{
+            $('#exampleModal').modal();
+        }
+    }
+
+    function getNhanVien(manvEdit) {
+        edit = true;
+        var manvGet = manvEdit;
+        axios.get('/nhanvien/?manv='+ manvGet).then(function (response) {
+            document.getElementById("manv").value = response.data.maNV;
+            document.getElementById("honv").value= response.data.hoNV;
+            document.getElementById("tennv").value= response.data.tenNV;
+            document.getElementById("gioitinh").value= response.data.gioiTinh;
+            document.getElementById("ngaysinh").value= response.data.ngaySinh;
+            document.getElementById("diachi").value= response.data.diaChi;
+            document.getElementById("dienthoai").value= response.data.dienThoai;
+        })
+        $('#exampleModal').modal();
+    }
+    function save() {
+        var nhanvien = new Object()
+        nhanvien.maNV = $('#manv').val();
+        nhanvien.hoNV = $('#honv').val();
+        nhanvien.tenNV = $('#tennv').val();
+        nhanvien.gioiTinh = $('#gioitinh').val();
+        var dateControl = document.querySelector('input[type="date"]');
+        nhanvien.ngaySinh = new Date(dateControl.value)
+        nhanvien.diaChi = $('#diachi').val();
+        nhanvien.dienThoai = $('#dienthoai').val();
+        axios.post('/nhanvien',nhanvien).then(function (response) {
+            mytbl.destroy();
+            mytbl = $("#tableNhanVien").DataTable({
+                "ajax" : {
+                    "url": "/nhanvien/all",
+                    "type": "GET",
+                    "cache": true,
+                    "dataSrc": "",
+                },
+                "columns" : [
+                    { "data" : "manv" },
+                    { "data" : "honv" },
+                    { "data" : "tennv" },
+                    { "data" : "ngaysinh" },
+                    { "data" : "gioitinh" },
+                    { "data" : "diachi" },
+                    { "data" : "dienthoai" },
+                    { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                            '                                    <i class="fa fa-pencil"></i>\n' +
+                            '                                </button>\n' +
+                            '                                <button type="button" class="btn btn-danger"">\n' +
+                            '                                    <i class="fa fa-trash"></i>\n' +
+                            '                                </button>'},
+                    { defaultContent: ''}
+                ]
+            });
+            $('#exampleModal').modal('hide');
+            document.getElementById("toastSuccess").innerHTML = response.data.maNV;
+            $("#toastTB").toast('show');
+        })
+    }
+
+    function saveEdit(manvTmp){
+        var manvGet = manvTmp;
+        var nhanvien = new Object();
+        nhanvien.maNV = $('#manv').val();
+        nhanvien.hoNV = $('#honv').val();
+        nhanvien.tenNV = $('#tennv').val();
+        nhanvien.gioiTinh = $('#gioitinh').val();
+        var dateControl = document.querySelector('input[type="date"]');
+        nhanvien.ngaySinh = new Date(dateControl.value)
+        nhanvien.diaChi = $('#diachi').val();
+        nhanvien.dienThoai = $('#dienthoai').val();
+        axios.put('/nhanvien/?manv='+ manvGet,nhanvien).then(function (response) {
+            mytbl.destroy();
+            mytbl = $("#tableNhanVien").DataTable({
+                "ajax" : {
+                    "url": "/nhanvien/all",
+                    "type": "GET",
+                    "cache": true,
+                    "dataSrc": "",
+                },
+                "columns" : [
+                    { "data" : "manv" },
+                    { "data" : "honv" },
+                    { "data" : "tennv" },
+                    { "data" : "ngaysinh" },
+                    { "data" : "gioitinh" },
+                    { "data" : "diachi" },
+                    { "data" : "dienthoai" },
+                    { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                            '                                    <i class="fa fa-pencil"></i>\n' +
+                            '                                </button>\n' +
+                            '                                <button type="button" class="btn btn-danger"">\n' +
+                            '                                    <i class="fa fa-trash"></i>\n' +
+                            '                                </button>'},
+                    { defaultContent: ''}
+                ]
+            });
+            $('#exampleModal').modal('hide');
+            document.getElementById("toastSuccess").innerHTML = response.data.manv;
+            $("#toastTB").toast('show');
+        })
+    }
+
+    $(document).ready(function() {
+        mytbl = $("#tableNhanVien").DataTable({
+            "ajax" : {
+                "url": "/nhanvien/all",
+                "type": "GET",
+                "cache": true,
+                "dataSrc": "",
+            },
+            "columns" : [
+                { "data" : "manv" },
+                { "data" : "honv" },
+                { "data" : "tennv" },
+                { "data" : "ngaysinh" },
+                { "data" : "gioitinh" },
+                { "data" : "diachi" },
+                { "data" : "dienthoai" },
+                { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                        '                                    <i class="fa fa-pencil"></i>\n' +
+                        '                                </button>\n' +
+                        '                                <button type="button" class="btn btn-danger"">\n' +
+                        '                                    <i class="fa fa-trash"></i>\n' +
+                        '                                </button>'},
+                { defaultContent: ''}
+            ]
+        });
+
+        $('#tableNhanVien').on('click', ':button.btn-cyan' , function () {
+            data = mytbl.row( $(this).parent().parent() ).data();
+            manvEdit = data.manv;
+            getNhanVien(manvEdit);
+        } );
+
+        $('#tableNhanVien').on('click', ':button.btn-danger' , function () {
+            data = mytbl.row( $(this).parent().parent() ).data();
+            manvEdit = data.manv;
+            deleteNhanVien(data.tennv);
+        } );
+    });
+
+
+
+    function formSubmit() {
+        if(saveVar){
+            save();
+            saveVar = false;
+        }else{
+            saveEdit(manvEdit);
+            edit = false;
+        }
+    }
+
+    function deleteNhanVien(tenNhanVienTmp) {
+        var tenNhanVien = tenNhanVienTmp;
+        document.getElementById("modalXoa").innerHTML = 'Bạn có muốn xóa nhân viên : '+tenNhanVien;
+        $('#modalSecond').modal();
+    }
+
+    function confirmDeleteNo() {
+        $('#modalSecond').modal('hide');
+    }
+
+    function confirmDeleteYes(manvtmp) {
+        var manv = manvtmp;
+        axios.delete('/nhanvien/'+'?manv='+manv).then(function (response) {
+            mytbl.destroy();
+            mytbl = $("#tableNhanVien").DataTable({
+                "ajax" : {
+                    "url": "/nhanvien/all",
+                    "type": "GET",
+                    "cache": true,
+                    "dataSrc": "",
+                },
+                "columns" : [
+                    { "data" : "manv" },
+                    { "data" : "honv" },
+                    { "data" : "tennv" },
+                    { "data" : "ngaysinh" },
+                    { "data" : "gioitinh" },
+                    { "data" : "diachi" },
+                    { "data" : "dienthoai" },
+                    { defaultContent : ' <button type="button" class="btn btn-cyan">\n' +
+                            '                                    <i class="fa fa-pencil"></i>\n' +
+                            '                                </button>\n' +
+                            '                                <button type="button" class="btn btn-danger"">\n' +
+                            '                                    <i class="fa fa-trash"></i>\n' +
+                            '                                </button>'},
+                    { defaultContent: ''}
+                ]
+            });
+            $('#modalSecond').modal('hide');
+            document.getElementById("toastSuccess").innerHTML = response.data;
+            $("#toastTB").toast('show');
+        })
+    }
+</script>
+</html>
